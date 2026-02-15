@@ -1,0 +1,18 @@
+num_wires:       4
+num_entangler:   1
+t2:              2.0e-6
+gamma:           0.75
+p:               1.0
+gm_ratio:        2.8e+6
+B:               5.0
+ps:              false
+
+opt:             Adam
+t_obs:           3.0e-6
+num_points:      200
+steps_per_point: 10000
+patience:        200
+
+num_process:     1
+
+save_to:         xz_test
