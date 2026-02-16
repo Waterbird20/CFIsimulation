@@ -116,11 +116,12 @@ class Circuit:
     
     def draw_circuit(self):
 
+        B_dummy = np.array(0.0)
         if self.ps:
-            fig, ax = qml.draw_mpl(self.inner_circuit)(np.array([0.0]))
+            fig, ax = qml.draw_mpl(self.inner_circuit)(B_dummy, self.w)
             fig.savefig('./circuit.png')
         else:
-            fig, ax = qml.draw_mpl(self.circuit)(np.array([0.0]))
+            fig, ax = qml.draw_mpl(self.circuit)(B_dummy, self.w)
             fig.savefig('./circuit.png')
 
     

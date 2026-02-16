@@ -151,7 +151,7 @@ class Trainer:
     # CFI as cost function
     def cost_function(self, w, circuit, B):
 
-        return -qml.gradients.classical_fisher(circuit.circuit)(B, w)
+        return -qml.qinfo.classical_fisher(circuit.circuit)(B, w)
 
     # actual training method
     def train(self, save_to):
@@ -162,7 +162,15 @@ class Trainer:
 
         print(self.circuit.w)
         print(self.circuit.bound)
-        res = dual_annealing(self.cost_function, bounds=self.circuit.bound, args=(self.circuit, self.B), maxiter=4000, seed=42)
+
+        self._iter_count = 0
+        def callback(x, f, context):
+            self._iter_count += 1
+            cfi = -f if not hasattr(f, '__len__') else -f.item()
+            t_s = x[self.circuit.ramsey.offset]
+            print(f'[iter {self._iter_count:4d}] CFI = {cfi:2.4f}, t_s = {t_s*1e6:.4f} μs')
+
+        res = dual_annealing(self.cost_function, bounds=self.circuit.bound, args=(self.circuit, self.B), maxiter=4000, seed=42, callback=callback)
         self.circuit.w = res.x
 
         print(res.x)
@@ -186,8 +194,8 @@ class Trainer:
         print(f'\nParameters')
         self.circuit.view_param()
 
-        plot_density_matrix(self.circuit.circuit(self.B, self.circuit.w), self.circuit.w[self.circuit.ramsey.offset], f'{save_to}_max_dm.png')
+        plot_density_matrix(self.circuit.circuit(self.B, self.circuit.w), self.circuit.w[self.circuit.ramsey.offset], f'{save_to}_max_dm')
         dm = self.circuit.circuit(self.B, self.circuit.w)
         np.save(f'./{save_to}_max_dm.npy', dm)
-        self.circuit.plot_params(data)
+        self.circuit.draw_circuit()
         np.save(f'./{save_to}_data.npy', data)
