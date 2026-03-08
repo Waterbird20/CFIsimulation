@@ -157,9 +157,9 @@ main.py
 - Includes depolarizing channel (commented out) and a final RX(pi/2) readout rotation
 
 #### `PostSelection`
-- **Parameters:** `3 * num_wires` — `[gamma_1..N, theta_Z1, theta_X1, ..., theta_ZN, theta_XN]`
-- **Bounds:** `gamma_i ∈ [0, 1-epsilon]`, angles `∈ [-2pi, 2pi]`
-- **Action:** Applies a Kraus operator `K = diag(sqrt(1-gamma_i), 1)` per qubit via tensor product, renormalizes the density matrix (`K rho K† / Tr(K rho K†)`), then applies RX and RZ rotations
+- **Parameters:** `2 * num_wires + 1` — `[gamma, theta_X1, theta_Z1, ..., theta_XN, theta_ZN]`
+- **Bounds:** `gamma ∈ [0, 1-epsilon]`, angles `∈ [-2pi, 2pi]`
+- **Action:** Applies a Kraus operator `K = diag(sqrt(1-gamma), 1)` per qubit (shared gamma) via tensor product, renormalizes the density matrix (`K rho K† / Tr(K rho K†)`), then applies RX and RZ rotations per wire
 - Implements weak-measurement post-selection to probabilistically filter states
 
 #### `Rotate` (deprecated)
@@ -202,7 +202,7 @@ This QFI value serves as an **upper bound** on the CFI: `F_C <= F_Q`. The ratio 
 1. Calls `scipy.optimize.dual_annealing` with:
    - **Cost function:** negative CFI (to minimize)
    - **Bounds:** from `circuit.bound` (sensing time, rotation angles, etc.)
-   - **Max iterations:** 4000
+   - **Max iterations:** 10000
    - **Seed:** 42 (reproducible)
 2. After convergence:
    - Prints optimized CFI, QFI, optimal sensing time, and final density matrix
@@ -360,7 +360,7 @@ The optimizer finds the parameter set that maximizes `F_C(B)`, balancing the tra
 │  dual_annealing(                                                 │
 │    cost = -classical_fisher(circuit)(B, w),                      │
 │    bounds = circuit.bound,                                       │
-│    maxiter = 4000                                                │
+│    maxiter = 10000                                                │
 │  )                                                               │
 │                                                                  │
 │  Each evaluation:                                                │

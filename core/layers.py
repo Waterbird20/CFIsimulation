@@ -148,7 +148,8 @@ class PostSelection(CircuitLayer):
     def __init__(self, num_wires, layer_id, offset):
         
         super().__init__(num_wires, layer_id)
-        self.n_params = 3*num_wires
+        # self.n_params = 3*num_wires
+        self.n_params = 2*num_wires + 1
         self.offset = offset
         self.data_label = [rf'$\gamma_{{{i+1}}}$' for i in range(self.num_wires)]
         for i in range(self.num_wires):
@@ -163,7 +164,7 @@ class PostSelection(CircuitLayer):
         ps = []
         
         for i in range(self.num_wires):
-            ps.append(np.array([[np.sqrt(1-np.clip(w[o+i],0,0.999)),0.],[0,1]],dtype=np.complex128))
+            ps.append(np.array([[np.sqrt(1-np.clip(w[o],0,0.999)),0.],[0,1]],dtype=np.complex128))
         K = reduce(lambda x,y: np.kron(x,y), ps)
         numerator = K @ rho @ K.conj().T
         denominator = np.trace(numerator)
@@ -172,8 +173,8 @@ class PostSelection(CircuitLayer):
 
         qml.QubitDensityMatrix(rho_ps, wires=range(self.num_wires))
         for i in range(self.num_wires):
-            qml.RX(w[o+i*2 + self.num_wires], wires=i)
-            qml.RZ(w[o+i*2 + self.num_wires+1], wires=i)
+            qml.RX(w[o+i*2 + 1], wires=i)
+            qml.RZ(w[o+i*2 + 2], wires=i)
 
 # Deprecated
 class Rotate(CircuitLayer):

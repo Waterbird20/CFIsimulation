@@ -59,23 +59,23 @@
 \begin{quantikz}[column sep=6pt, row sep=0.2cm]
   \lstick{$q_0$}
     & \gate[style={sq-gate, fill=qblue}]{\gl{R_Y}{\pi/2}}
-    & \gate[wires=2, style={mq-gate, fill=qred}]{\mgl{e^{-iH\tau_1 }}}
-    & \gate[style={sq-gate, fill=qred}]{\gl{R_X}{\theta}}
+    & \gate[wires=2, style={mq-gate, fill=qred}]{\mgl{RZZ(\omega\tau_1)}}
+    & \gate[style={sq-gate, fill=qred}]{\gl{R_X}{\theta_\text{ent}}}
     & \gate[style={sq-gate, fill=qblue}]{\gl{R_Y}{-\pi/2}}
-    & \gate[wires=2, style={mq-gate, fill=qred}]{\mgl{e^{-i H\tau_2}}}
+    & \gate[wires=2, style={mq-gate, fill=qred}]{\mgl{RZZ(\omega \tau_2)}}
     & \gate[style={sq-gate, fill=qblue}]{\gl{R_Y}{\pi/2}}
-    & \gate[wires=2, style={mq-gate, fill=qred}]{\mgl{e^{-i  H^{\prime}t_s}}}
+    & \gate[wires=2, style={mq-gate, fill=qred}]{\mgl{RZZ(\omega t_s)}}
     & \gate[style={sq-gate, fill=qorange}]{\gl{\mathcal{E}}{\gamma_{pd}}}
     & \gate[style={sq-gate, fill=qblue}]{\gl{R_X}{\pi/2}}
     & \gate[style={sq-gate, fill=qpurple}]{\gl{K}{\gamma_1}}
-    & \gate[style={sq-gate, fill=qred}]{\gl{R_X}{\theta}}
-    & \gate[style={sq-gate, fill=qred}]{\gl{R_Z}{\theta}}
+    & \gate[style={sq-gate, fill=qred}]{\gl{R_X}{\theta_\text{mes}}}
+    & \gate[style={sq-gate, fill=qred}]{\gl{R_Z}{\theta_\text{mes}}}
     & \gate[style={meter}]{\makebox[\sqsize][c]{\vbox to \sqsize{}}}
   \\
   \lstick{$q_1$}
     & \gate[style={sq-gate, fill=qblue}]{\gl{R_Y}{\pi/2}}
     & \qw
-    & \gate[style={sq-gate, fill=qred}]{\gl{R_X}{\theta}}
+    & \gate[style={sq-gate, fill=qred}]{\gl{R_X}{\theta_\text{ent}}}
     & \gate[style={sq-gate, fill=qblue}]{\gl{R_Y}{-\pi/2}}
     & \qw
     & \gate[style={sq-gate, fill=qblue}]{\gl{R_Y}{\pi/2}}
@@ -83,8 +83,8 @@
     & \gate[style={sq-gate, fill=qorange}]{\gl{\mathcal{E}}{\gamma_{pd}}}
     & \gate[style={sq-gate, fill=qblue}]{\gl{R_X}{\pi/2}}
     & \gate[style={sq-gate, fill=qpurple}]{\gl{K}{\gamma_2}}
-    & \gate[style={sq-gate, fill=qred}]{\gl{R_X}{\theta}}
-    & \gate[style={sq-gate, fill=qred}]{\gl{R_Z}{\theta}}
+    & \gate[style={sq-gate, fill=qred}]{\gl{R_X}{\theta_\text{mes}}}
+    & \gate[style={sq-gate, fill=qred}]{\gl{R_Z}{\theta_\text{mes}}}
     & \gate[style={meter}]{\makebox[\sqsize][c]{\vbox to \sqsize{}}}
 \end{quantikz}
 

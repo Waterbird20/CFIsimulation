@@ -181,14 +181,14 @@ class Trainer:
             max_cfi = max_cfi.item()
 
         print(res)
-        data[0] =  max_cfi
-        data[2:] = self.circuit.w
+        # data[0] =  max_cfi
+        # data[2:] = self.circuit.w
 
         print(f'\nCFI : {max_cfi} , at sensing time : {self.circuit.w[self.circuit.ramsey.offset]*1e6:6f} μs')
         qfi = quantum_fisher_information_mixed(self.circuit.circuit, self.B, self.circuit.w)
         print(f'QFI = {qfi}')
 
-        data[1] = qfi
+        # data[1] = qfi
         print(f'\nDensity Matrix')
         print(self.circuit.circuit(self.B, self.circuit.w))
         print(f'\nParameters')
@@ -198,4 +198,4 @@ class Trainer:
         dm = self.circuit.circuit(self.B, self.circuit.w)
         np.save(f'./{save_to}_max_dm.npy', dm)
         self.circuit.draw_circuit()
-        np.save(f'./{save_to}_data.npy', data)
+        # np.save(f'./{save_to}_data.npy', data)
