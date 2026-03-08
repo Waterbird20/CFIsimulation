@@ -1,0 +1,91 @@
+\documentclass[border=8pt]{standalone}
+\usepackage{quantikz}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{arev}
+\usepackage{graphicx}
+
+\begin{document}
+
+\definecolor{qblue}{HTML}{72AFF8}
+\definecolor{qpurple}{HTML}{B48EF8}
+\definecolor{qred}{HTML}{D9595C}
+\definecolor{qorange}{HTML}{FF832B}
+\definecolor{qgray}{HTML}{A8A8A8}
+
+\newlength{\sqsize}
+\setlength{\sqsize}{0.4cm}
+\newlength{\mqheight}
+\setlength{\mqheight}{2\sqsize}
+\addtolength{\mqheight}{0.5cm}  % match quantikz row sep
+
+% Zero-declared-size wrapper so gate height is driven by minimum height, not content
+\newcommand{\mgl}[1]{\makebox[0pt][c]{\rotatebox{90}{$\scriptstyle #1$}}}
+
+\newcommand{\gl}[2]{%
+  \makebox[\sqsize][c]{%
+    \vbox to \sqsize{\vfil
+      \baselineskip=0pt\lineskip=1pt\lineskiplimit=0pt
+      \hbox to \sqsize{\hfil$\tiny #1$\hfil}%
+      \hbox to \sqsize{\hfil{\fontsize{5}{6}\selectfont$#2$}\hfil}%
+    \vfil}%
+  }%
+}
+
+\tikzset{
+  operator/.append style={rounded corners=0pt, inner sep=0pt},
+  sq-gate/.style={minimum size=\sqsize, inner sep=0pt, text=white, draw=none},
+  mq-gate/.style={minimum width=\sqsize, minimum height=\mqheight, inner sep=0pt, text=white, draw=none},
+  % Redefine meter to match Qiskit style: gray fill, black arc only
+  meter/.style={
+    draw=none, fill=qgray, rectangle, rounded corners=0pt,
+    minimum size=\sqsize, inner sep=0pt,
+    font=\vphantom{A},
+    path picture={
+      \clip (path picture bounding box.south west)
+            rectangle (path picture bounding box.north east);
+      % Semicircle arc (∩ shape), radius 0.2 centered at (0, -0.065)
+      \draw[black, line width=1.2pt]
+            ([shift={(-0.2, -0.065)}]path picture bounding box.center)
+            arc (180:0:0.2);
+      % Needle: straight line from arc center toward upper-right
+      \draw[black, line width=1.2pt]
+            ([shift={(0, -0.065)}]path picture bounding box.center)
+            -- ([shift={(0.2, 0.1414)}]path picture bounding box.center);
+    }
+  }
+}
+
+\begin{quantikz}[column sep=6pt, row sep=0.2cm]
+  \lstick{$q_0$}
+    & \gate[style={sq-gate, fill=qblue}]{\gl{R_Y}{\pi/2}}
+    & \gate[wires=2, style={mq-gate, fill=qred}]{\mgl{e^{-iH\tau_1 }}}
+    & \gate[style={sq-gate, fill=qred}]{\gl{R_X}{\theta}}
+    & \gate[style={sq-gate, fill=qblue}]{\gl{R_Y}{-\pi/2}}
+    & \gate[wires=2, style={mq-gate, fill=qred}]{\mgl{e^{-i H\tau_2}}}
+    & \gate[style={sq-gate, fill=qblue}]{\gl{R_Y}{\pi/2}}
+    & \gate[wires=2, style={mq-gate, fill=qred}]{\mgl{e^{-i  H^{\prime}t_s}}}
+    & \gate[style={sq-gate, fill=qorange}]{\gl{\mathcal{E}}{\gamma_{pd}}}
+    & \gate[style={sq-gate, fill=qblue}]{\gl{R_X}{\pi/2}}
+    & \gate[style={sq-gate, fill=qpurple}]{\gl{K}{\gamma_1}}
+    & \gate[style={sq-gate, fill=qred}]{\gl{R_X}{\theta}}
+    & \gate[style={sq-gate, fill=qred}]{\gl{R_Z}{\theta}}
+    & \gate[style={meter}]{\makebox[\sqsize][c]{\vbox to \sqsize{}}}
+  \\
+  \lstick{$q_1$}
+    & \gate[style={sq-gate, fill=qblue}]{\gl{R_Y}{\pi/2}}
+    & \qw
+    & \gate[style={sq-gate, fill=qred}]{\gl{R_X}{\theta}}
+    & \gate[style={sq-gate, fill=qblue}]{\gl{R_Y}{-\pi/2}}
+    & \qw
+    & \gate[style={sq-gate, fill=qblue}]{\gl{R_Y}{\pi/2}}
+    & \qw
+    & \gate[style={sq-gate, fill=qorange}]{\gl{\mathcal{E}}{\gamma_{pd}}}
+    & \gate[style={sq-gate, fill=qblue}]{\gl{R_X}{\pi/2}}
+    & \gate[style={sq-gate, fill=qpurple}]{\gl{K}{\gamma_2}}
+    & \gate[style={sq-gate, fill=qred}]{\gl{R_X}{\theta}}
+    & \gate[style={sq-gate, fill=qred}]{\gl{R_Z}{\theta}}
+    & \gate[style={meter}]{\makebox[\sqsize][c]{\vbox to \sqsize{}}}
+\end{quantikz}
+
+\end{document}
