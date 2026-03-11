@@ -64,7 +64,7 @@ class Entangler(CircuitLayer):
         self.gamma = 1.4e+7
         self.H = get_entangler(num_wires)
         self.data_label = [r'$\tau$', r'$\theta$', r'${\tau}^{\prime}$']
-        self.bound = [(-2*pi, 2*pi)]*self.n_params
+        self.bound = [(0, 2e-6) ,(-2*pi, 2*pi), (0, 2e-6)]
 
 
     def __call__(self, w):
@@ -130,11 +130,14 @@ class RamseyZ(CircuitLayer):
         if phi < 0:
             print(phi)
             print(w[o], o)
-        H = get_ramsey(self.num_wires, self.gm_ratio, w[o])
+        # H = get_ramsey(self.num_wires, self.gm_ratio, w[o])
+        H = get_entangler(self.num_wires)
         tau = dephase_factor_nontorch((phi)**(self.p))
-        qml.ApproxTimeEvolution(H, B, 1)
-        
+        # qml.ApproxTimeEvolution(H, B, 1)
+        # qml.ApproxTimeEvolution(H, w[o], 1)
+
         for i in range(self.num_wires):
+            qml.RZ(-self.gm_ratio*B*w[o], wires=i)
             qml.PhaseDamping(tau, wires=i)
             qml.RZ(w[o+i+1], wires=i)
             qml.RX(pi/2, wires=i)
@@ -148,8 +151,8 @@ class PostSelection(CircuitLayer):
     def __init__(self, num_wires, layer_id, offset):
         
         super().__init__(num_wires, layer_id)
-        # self.n_params = 3*num_wires
-        self.n_params = 2*num_wires + 1
+        self.n_params = 3*num_wires
+        # self.n_params = 2*num_wires + 1
         self.offset = offset
         self.data_label = [rf'$\gamma_{{{i+1}}}$' for i in range(self.num_wires)]
         for i in range(self.num_wires):
@@ -164,7 +167,7 @@ class PostSelection(CircuitLayer):
         ps = []
         
         for i in range(self.num_wires):
-            ps.append(np.array([[np.sqrt(1-np.clip(w[o],0,0.999)),0.],[0,1]],dtype=np.complex128))
+            ps.append(np.array([[np.sqrt(1-np.clip(w[o+i],0,0.999)),0.],[0,1]],dtype=np.complex128))
         K = reduce(lambda x,y: np.kron(x,y), ps)
         numerator = K @ rho @ K.conj().T
         denominator = np.trace(numerator)
@@ -173,8 +176,8 @@ class PostSelection(CircuitLayer):
 
         qml.QubitDensityMatrix(rho_ps, wires=range(self.num_wires))
         for i in range(self.num_wires):
-            qml.RX(w[o+i*2 + 1], wires=i)
-            qml.RZ(w[o+i*2 + 2], wires=i)
+            qml.RZ(w[o+i*2 + self.num_wires], wires=i)
+            qml.RX(w[o+i*2 + 1 + self.num_wires], wires=i)
 
 # Deprecated
 class Rotate(CircuitLayer):

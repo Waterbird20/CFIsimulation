@@ -82,7 +82,9 @@ class Circuit:
         self.n_params = pivot
         bound_np = np.array(self.bound)
         
-        rng = np.random.default_rng(seed=42)
+        rng = np.random.default_rng(
+            # seed=42
+            )
         self.w = rng.uniform(bound_np[:,0], bound_np[:,1])
         
         if self.ps:

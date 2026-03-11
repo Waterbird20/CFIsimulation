@@ -5,7 +5,7 @@ gamma:           0.75
 p:               1.0
 gm_ratio:        2.8e+6
 B:               5.0
-ps:              true
+ps:              false
 
 opt:             Adam
 t_obs:           3.0e-6

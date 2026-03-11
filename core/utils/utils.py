@@ -20,7 +20,7 @@ def get_entangler(num_wires):
     for entry in combinations(range(num_wires), 2):
         H.append(qml.PauliZ(entry[0]) @ qml.PauliZ(entry[1]))
 
-    return qml.Hamiltonian(coeffs = [0.5]*len(H), observables = H)
+    return qml.Hamiltonian(coeffs = [0.5e-6*2*np.pi]*len(H), observables = H)
 
 
 # Ramsey free-evolution hamiltonian getter
@@ -30,7 +30,7 @@ def get_ramsey(num_wires, gm_ratio, t_obs):
     for i in range(num_wires):
         H.append(qml.PauliZ(i))
 
-    return qml.Hamiltonian(coeffs = [gm_ratio*t_obs*0.5]*len(H), observables = H)
+    return qml.Hamiltonian(coeffs = [gm_ratio*t_obs*0.5e-6*2*np.pi]*len(H), observables = H)
 
 
 def plot_density_matrix(rho, t, save_as):

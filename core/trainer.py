@@ -170,7 +170,9 @@ class Trainer:
             t_s = x[self.circuit.ramsey.offset]
             print(f'[iter {self._iter_count:4d}] CFI = {cfi:2.4f}, t_s = {t_s*1e6:.4f} μs')
 
-        res = dual_annealing(self.cost_function, bounds=self.circuit.bound, args=(self.circuit, self.B), maxiter=10000, seed=42, callback=callback)
+        res = dual_annealing(self.cost_function, bounds=self.circuit.bound, args=(self.circuit, self.B), maxiter=10000, 
+                            #  seed=42, 
+                             callback=callback)
         self.circuit.w = res.x
 
         print(res.x)
