@@ -64,12 +64,12 @@
     & \gate[style={sq-gate, fill=qblue}]{\gl{R_Y}{-\pi/2}}
     & \gate[wires=2, style={mq-gate, fill=qred}]{\mgl{RZZ(\omega \tau_2)}}
     & \gate[style={sq-gate, fill=qblue}]{\gl{R_Y}{\pi/2}}
-    & \gate[wires=2, style={mq-gate, fill=qred}]{\mgl{RZZ(\omega t_s)}}
+    & \gate[style={sq-gate, fill=qred}]{\gl{R_Z}{\theta_s}}
     & \gate[style={sq-gate, fill=qorange}]{\gl{\mathcal{E}}{\gamma_{pd}}}
     & \gate[style={sq-gate, fill=qblue}]{\gl{R_X}{\pi/2}}
     & \gate[style={sq-gate, fill=qpurple}]{\gl{K}{\gamma_1}}
-    & \gate[style={sq-gate, fill=qred}]{\gl{R_X}{\theta_\text{mes}}}
     & \gate[style={sq-gate, fill=qred}]{\gl{R_Z}{\theta_\text{mes}}}
+    & \gate[style={sq-gate, fill=qred}]{\gl{R_X}{\theta_\text{mes}}}
     & \gate[style={meter}]{\makebox[\sqsize][c]{\vbox to \sqsize{}}}
   \\
   \lstick{$q_1$}
@@ -79,12 +79,12 @@
     & \gate[style={sq-gate, fill=qblue}]{\gl{R_Y}{-\pi/2}}
     & \qw
     & \gate[style={sq-gate, fill=qblue}]{\gl{R_Y}{\pi/2}}
-    & \qw
+    & \gate[style={sq-gate, fill=qred}]{\gl{R_Z}{\theta_s}}
     & \gate[style={sq-gate, fill=qorange}]{\gl{\mathcal{E}}{\gamma_{pd}}}
     & \gate[style={sq-gate, fill=qblue}]{\gl{R_X}{\pi/2}}
     & \gate[style={sq-gate, fill=qpurple}]{\gl{K}{\gamma_2}}
-    & \gate[style={sq-gate, fill=qred}]{\gl{R_X}{\theta_\text{mes}}}
     & \gate[style={sq-gate, fill=qred}]{\gl{R_Z}{\theta_\text{mes}}}
+    & \gate[style={sq-gate, fill=qred}]{\gl{R_X}{\theta_\text{mes}}}
     & \gate[style={meter}]{\makebox[\sqsize][c]{\vbox to \sqsize{}}}
 \end{quantikz}
 
