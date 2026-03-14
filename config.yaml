@@ -1,7 +1,6 @@
 num_wires:       2
 num_entangler:   1
 t2:              2.0e-6
-gamma:           0.75
 p:               1.0
 gm_ratio:        2.8e+6
 B:               5.0
@@ -16,7 +15,6 @@ visit:              2.62
 accept:             -5.0
 maxfun:             10000000
 no_local_search:    false
-t_obs:              3.0e-6
 num_points:         200
 steps_per_point:    10000
 patience:           200

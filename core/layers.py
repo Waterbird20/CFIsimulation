@@ -60,7 +60,6 @@ class Entangler(CircuitLayer):
 
         self.offset = offset
         self.t2 = t2
-        self.gamma = 1.4e+7
         self.H = get_entangler(num_wires)
         self.data_label = [r'$\theta_1^1$', r'$\theta_2^1$', r'$\theta_1^2$', r'$\theta_2^2$', r'$\theta_3^2$', r'$\theta_1^3$', r'$\theta_2^3$', r'$\theta_3^3$']
         # self.data_label = [r'$\tau$', r'$\theta$', r'${\tau}^{\prime}$']
@@ -140,7 +139,7 @@ class RamseyZ(CircuitLayer):
         H = get_entangler(self.num_wires)
         tau = dephase_factor_nontorch((phi)**(self.p))
         # qml.ApproxTimeEvolution(H, B, 1)
-        # qml.ApproxTimeEvolution(H, w[o], 1)
+        qml.ApproxTimeEvolution(H, w[o], 1)
 
         for i in range(self.num_wires):
             qml.RZ(self.gm_ratio*B*w[o], wires=i)

@@ -1,0 +1,13 @@
+{
+  "timestamp": "20260314_225809",
+  "seed": 22160,
+  "max_cfi": 15.245589048787812,
+  "qfi": 15.245593955298851,
+  "cfi_qfi_ratio": 0.9999996781685874,
+  "optimal_sensing_time_s": 1.0037543594682103e-06,
+  "optimal_sensing_time_us": 1.0037543594682103,
+  "num_function_evals": 1398247,
+  "num_iterations": 2109,
+  "optimizer_message": "['Maximum number of iteration reached']",
+  "optimizer_success": true
+}
