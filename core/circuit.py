@@ -33,12 +33,12 @@ class Circuit:
         pivot = 0
         if self.p.num_wires == 1:
             self.init = Initialization(self.p.num_wires, 'Init', 'X')
-            self.ramsey = RamseyZ(self.p.num_wires, 'Ramsey', pivot, self.p.t2, self.p.p, self.p.gm_ratio)
+            self.ramsey = RamseyZ(self.p.num_wires, 'Ramsey', pivot, self.p.t2, self.p.p, self.p.gm_ratio, fixed_ts=self.p.fixed_ts)
             pivot += self.ramsey.n_params
             b = self.ramsey.get_param_bound()
             if b is not None:
                 self.bound.extend(b)
-            
+
         else:
             self.init = Initialization(self.p.num_wires, 'Init', 'Y')
 
@@ -50,7 +50,7 @@ class Circuit:
                 if b is not None:
                     self.bound.extend(b)
 
-            self.ramsey = RamseyZ(self.p.num_wires, 'Ramsey', pivot, self.p.t2, self.p.p, self.p.gm_ratio)
+            self.ramsey = RamseyZ(self.p.num_wires, 'Ramsey', pivot, self.p.t2, self.p.p, self.p.gm_ratio, fixed_ts=self.p.fixed_ts)
             b = self.ramsey.get_param_bound()
             if b is not None:
                 self.bound.extend(b)

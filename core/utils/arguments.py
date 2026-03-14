@@ -14,6 +14,7 @@ class circuitarguments:
     B:              float
     t:              float
     ps:             bool
+    fixed_ts:       float = None
 
 # Arguments for optimization
 @dataclass

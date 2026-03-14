@@ -173,7 +173,7 @@ class Trainer:
         def callback(x, f, context):
             self._iter_count += 1
             cfi = -f if not hasattr(f, '__len__') else -f.item()
-            t_s = x[self.circuit.ramsey.offset]
+            t_s = self.circuit.ramsey.get_ts(x)
             print(f'[iter {self._iter_count:4d}] CFI = {cfi:2.4f}, t_s = {t_s*1e6:.4f} μs')
             opt_log.append({'iter': self._iter_count, 'cfi': cfi, 't_s': t_s})
 
@@ -191,7 +191,7 @@ class Trainer:
 
         print(res)
 
-        print(f'\nCFI : {max_cfi} , at sensing time : {self.circuit.w[self.circuit.ramsey.offset]*1e6:6f} μs')
+        print(f'\nCFI : {max_cfi} , at sensing time : {self.circuit.ramsey.get_ts(self.circuit.w)*1e6:6f} μs')
         qfi = quantum_fisher_information_mixed(self.circuit.circuit, self.B, self.circuit.w)
         print(f'QFI = {qfi}')
 
@@ -208,7 +208,7 @@ class Trainer:
         run_dir = f'results/{save_to}_seed{self.seed}_{timestamp}'
         os.makedirs(run_dir, exist_ok=True)
 
-        t_s_optimal = float(self.circuit.w[self.circuit.ramsey.offset])
+        t_s_optimal = float(self.circuit.ramsey.get_ts(self.circuit.w))
 
         # 1. Save config
         with open(f'{run_dir}/config.yaml', 'w') as f:

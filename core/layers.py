@@ -116,35 +116,50 @@ class Ramsey(CircuitLayer):
 # Ramsey free evolution layer with RZ gate at the end
 class RamseyZ(CircuitLayer):
 
-    def __init__(self, num_wires, layer_id, offset, t2, p, gm_ratio):
+    def __init__(self, num_wires, layer_id, offset, t2, p, gm_ratio, fixed_ts=None):
 
         super().__init__(num_wires, layer_id)
         self.t2 = t2
         self.gm_ratio = gm_ratio
         self.offset = offset
-        self.n_params = self.num_wires + 1
         self.p = p
-        self.data_label = [r'$t_{s}$'] + [rf'$\theta_{{Z{i+1}}}$' for i in range(self.num_wires)]
-        self.bound = [(1e-9,2*self.t2)] + [(-2*pi, 2*pi)]*(self.num_wires)
+        self.fixed_ts = fixed_ts
+
+        if fixed_ts is not None:
+            self.n_params = self.num_wires
+            self.data_label = [rf'$\theta_{{Z{i+1}}}$' for i in range(self.num_wires)]
+            self.bound = [(-2*pi, 2*pi)] * self.num_wires
+        else:
+            self.n_params = self.num_wires + 1
+            self.data_label = [r'$t_{s}$'] + [rf'$\theta_{{Z{i+1}}}$' for i in range(self.num_wires)]
+            self.bound = [(1e-9,2*self.t2)] + [(-2*pi, 2*pi)]*(self.num_wires)
 
     
+    def get_ts(self, w):
+        if self.fixed_ts is not None:
+            return self.fixed_ts
+        return w[self.offset]
+
     def __call__(self, w, B):
 
         o = self.offset
-        phi = np.abs(w[o])/self.t2
+        t_s = self.get_ts(w)
+        rz_o = o if self.fixed_ts is not None else o + 1
+
+        phi = np.abs(t_s)/self.t2
         if phi < 0:
             print(phi)
-            print(w[o], o)
+            print(t_s, o)
         # H = get_ramsey(self.num_wires, self.gm_ratio, w[o])
         H = get_entangler(self.num_wires)
         tau = dephase_factor_nontorch((phi)**(self.p))
         # qml.ApproxTimeEvolution(H, B, 1)
-        qml.ApproxTimeEvolution(H, w[o], 1)
+        qml.ApproxTimeEvolution(H, t_s, 1)
 
         for i in range(self.num_wires):
-            qml.RZ(self.gm_ratio*B*w[o], wires=i)
+            qml.RZ(self.gm_ratio*B*t_s, wires=i)
             qml.PhaseDamping(tau, wires=i)
-            qml.RZ(w[o+i+1], wires=i)
+            qml.RZ(w[rz_o+i], wires=i)
             qml.RX(pi/2, wires=i)
 
     def get_param_bound(self):

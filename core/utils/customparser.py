@@ -19,7 +19,8 @@ class customparser:
                                 gm_ratio        = self.arg['gm_ratio'], \
                                 B               = self.arg['B'], \
                                 t               = self.arg['t_obs'], \
-                                ps              = self.arg['ps']), \
+                                ps              = self.arg['ps'], \
+                                fixed_ts        = self.arg.get('fixed_ts', None)), \
                 optarguments(   opt                = self.arg['opt'], \
                                 maxiter            = self.arg.get('maxiter', 10000), \
                                 initial_temp       = self.arg.get('initial_temp', 5230.0), \
