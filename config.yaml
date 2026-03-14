@@ -6,12 +6,20 @@ p:               1.0
 gm_ratio:        2.8e+6
 B:               5.0
 ps:              false
+seed:            42
 
-opt:             Adam
-t_obs:           3.0e-6
-num_points:      200
-steps_per_point: 10000
-patience:        200
+opt:                Adam
+maxiter:            10000
+initial_temp:       5230.0
+restart_temp_ratio: 2.0e-5
+visit:              2.62
+accept:             -5.0
+maxfun:             10000000
+no_local_search:    false
+t_obs:              3.0e-6
+num_points:         200
+steps_per_point:    10000
+patience:           200
 
 num_process:     1
 

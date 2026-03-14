@@ -33,7 +33,7 @@ def get_ramsey(num_wires, gm_ratio, t_obs):
     return qml.Hamiltonian(coeffs = [gm_ratio*t_obs*0.5e-6*2*np.pi]*len(H), observables = H)
 
 
-def plot_density_matrix(rho, t, save_as):
+def plot_density_matrix(rho, t, save_path):
 
     fig = plt.figure(figsize=(10, 8))
 
@@ -47,7 +47,7 @@ def plot_density_matrix(rho, t, save_as):
     dx = dy = 0.8
     dz_real = rho.real.flatten()
     colors_real = plt.cm.rainbow((dz_real - dz_real.min()) / (dz_real.max() - dz_real.min()))
-    
+
     ax1.bar3d(xpos, ypos, zpos, dx, dy, dz_real, color=colors_real, shade=True, alpha=0.7)
     ax1.set_xlabel('Column')
     ax1.set_ylabel('Row')
@@ -56,29 +56,15 @@ def plot_density_matrix(rho, t, save_as):
     ax1.set_xticks(range(n))
     ax1.set_yticks(range(n))
     ax1.view_init(elev=50, azim=30)
-    
+
     norm = Normalize(vmin = dz_real.min(), vmax = dz_real.max())
     sm = ScalarMappable(norm=norm, cmap='rainbow')
     sm.set_array([])
-    cbar = plt.colorbar(sm, ax=ax1, pad=0.1, shrink=0.5, aspect=10)  # 위치와 크기 조정
+    cbar = plt.colorbar(sm, ax=ax1, pad=0.1, shrink=0.5, aspect=10)
     cbar.set_label('Amplitude')
 
- 
-    # ax2 = fig.add_subplot(122, projection='3d')
-    # dz_imag = rho.imag.flatten()
-    # colors_imag = plt.cm.rainbow((dz_imag - dz_imag.min()) / (dz_imag.max() - dz_imag.min()))
-    
-    # ax2.bar3d(xpos, ypos, zpos, dx, dy, dz_imag, color=colors_imag, shade=True, alpha=0.7)
-    # ax2.set_xlabel('Column')
-    # ax2.set_ylabel('Row')
-    # ax2.set_zlabel('Amplitude')
-    # ax2.set_title('Imaginary Part of Density Matrix')
-    # ax2.set_xticks(range(n))
-    # ax2.set_yticks(range(n))
-    # ax2.view_init(elev=50, azim=30)
-
     plt.tight_layout()
-    plt.savefig(f'./dmplots/{save_as}.png')
+    plt.savefig(save_path)
     plt.close()
 
 

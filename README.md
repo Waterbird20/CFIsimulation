@@ -516,3 +516,12 @@ patience:        200
 num_process:     1
 save_to:         entangled_4q_ps
 ```
+
+---
+
+## 9. Results
+
+Rows are appended automatically after each `python main.py config.yaml` run.
+
+| Date | Seed | Wires | Entanglers | T2 (us) | p | B | PS | CFI | QFI | CFI/QFI | t_s (us) | Directory |
+|------|------|-------|------------|---------|---|---|----|-----|-----|---------|----------|-----------|

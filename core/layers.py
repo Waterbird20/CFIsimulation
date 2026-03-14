@@ -60,25 +60,31 @@ class Entangler(CircuitLayer):
 
         self.offset = offset
         self.t2 = t2
-        self.n_params = 3
         self.gamma = 1.4e+7
         self.H = get_entangler(num_wires)
-        self.data_label = [r'$\tau$', r'$\theta$', r'${\tau}^{\prime}$']
-        self.bound = [(0, 2e-6) ,(-2*pi, 2*pi), (0, 2e-6)]
+        self.data_label = [r'$\theta_1^1$', r'$\theta_2^1$', r'$\theta_1^2$', r'$\theta_2^2$', r'$\theta_3^2$', r'$\theta_1^3$', r'$\theta_2^3$', r'$\theta_3^3$']
+        # self.data_label = [r'$\tau$', r'$\theta$', r'${\tau}^{\prime}$']
+        self.n_params = len(self.data_label)
+        # self.bound = [(0, 2e-6) ,(-2*pi, 2*pi), (0, 2e-6)]
+        self.bound = [(-2*pi, 2*pi)]*self.n_params
 
 
     def __call__(self, w):
 
         o = self.offset
     
-        qml.ApproxTimeEvolution(self.H, w[o], 1)
+        # qml.ApproxTimeEvolution(self.H, w[o], 1)
+        qml.RX(w[o], wires=0)
+        qml.RZ(w[o+1], wires=0)
+        qml.CNOT(wires=[0,1])
         for i in range(self.num_wires):
-            qml.RX(w[o+1], wires=i)
-            qml.RY(-pi/2, wires=i)
+            qml.RZ(w[o+2+3*i], wires=i)
+            qml.RX(w[o+3+3*i], wires=i)
+            qml.RZ(w[o+4+3*i], wires=i)
 
-        qml.ApproxTimeEvolution(self.H, w[o+2], 1)
-        for i in range(self.num_wires):
-            qml.RY(pi/2, wires=i)
+        # qml.ApproxTimeEvolution(self.H, w[o+2], 1)
+        # for i in range(self.num_wires):
+        #     qml.RY(pi/2, wires=i)
 
 # Ramsey free evolution layer with RZ gate 
 class Ramsey(CircuitLayer):
@@ -137,7 +143,7 @@ class RamseyZ(CircuitLayer):
         # qml.ApproxTimeEvolution(H, w[o], 1)
 
         for i in range(self.num_wires):
-            qml.RZ(-self.gm_ratio*B*w[o], wires=i)
+            qml.RZ(self.gm_ratio*B*w[o], wires=i)
             qml.PhaseDamping(tau, wires=i)
             qml.RZ(w[o+i+1], wires=i)
             qml.RX(pi/2, wires=i)

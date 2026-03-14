@@ -1,15 +1,18 @@
 import os
+import json
+import csv
 import pennylane as qml
 import torch
 import pennylane.numpy as np
 import multiprocessing as mp
 import time
+import yaml
 
+from datetime import datetime
 from scipy.optimize import minimize, dual_annealing, differential_evolution, basinhopping
 from numpy import inf
 from tqdm import tqdm
 from .utils.arguments import optarguments, circuitarguments, otherarguments
-from .utils.utils import plot_density_matrix
 from .circuit import Circuit
 
 pi = np.pi
@@ -132,19 +135,23 @@ def quantum_fisher_information_mixed(
 # Circuit trainer class
 class Trainer:
 
-    def __init__(self, params: optarguments, circuitarg: circuitarguments):
-        
+    def __init__(self, params: optarguments, circuitarg: circuitarguments, seed: int = 42, raw_config: dict = None):
+
         # Trainer configuration
         self.p = params
         # Circuit configuration
         self.cp = circuitarg
+        # Seed for reproducibility
+        self.seed = seed
+        # Raw config dict for saving
+        self.raw_config = raw_config or {}
 
         # Bias signal
         self.B = np.array(circuitarg.B)
         # Gyromagnetic ratio
         self.gm_ratio = circuitarg.gm_ratio
         # Circuit class
-        self.circuit = Circuit(circuitarg)
+        self.circuit = Circuit(circuitarg, seed=seed)
 
         self.sweep_list = np.linspace(0.0, self.p.t_obs, self.p.num_points+1)[1:]
 
@@ -156,12 +163,11 @@ class Trainer:
     # actual training method
     def train(self, save_to):
 
-        p = self.p.patience
-
-        data = np.zeros(self.circuit.n_params+2)
-
         print(self.circuit.w)
         print(self.circuit.bound)
+
+        # Collect optimization logs
+        opt_log = []
 
         self._iter_count = 0
         def callback(x, f, context):
@@ -169,35 +175,102 @@ class Trainer:
             cfi = -f if not hasattr(f, '__len__') else -f.item()
             t_s = x[self.circuit.ramsey.offset]
             print(f'[iter {self._iter_count:4d}] CFI = {cfi:2.4f}, t_s = {t_s*1e6:.4f} μs')
+            opt_log.append({'iter': self._iter_count, 'cfi': cfi, 't_s': t_s})
 
-        res = dual_annealing(self.cost_function, bounds=self.circuit.bound, args=(self.circuit, self.B), maxiter=10000, 
-                            #  seed=42, 
-                             callback=callback)
-        self.circuit.w = res.x
+        res = dual_annealing(self.cost_function, bounds=self.circuit.bound, args=(self.circuit, self.B),
+                             maxiter=self.p.maxiter, initial_temp=self.p.initial_temp,
+                             restart_temp_ratio=self.p.restart_temp_ratio, visit=self.p.visit,
+                             accept=self.p.accept, maxfun=self.p.maxfun,
+                             no_local_search=self.p.no_local_search,
+                             seed=self.seed, callback=callback)
 
-        print(res.x)
-        
         self.circuit.w = res.x
         max_cfi = -res.fun
         if type(max_cfi) is not float:
             max_cfi = max_cfi.item()
 
         print(res)
-        # data[0] =  max_cfi
-        # data[2:] = self.circuit.w
 
         print(f'\nCFI : {max_cfi} , at sensing time : {self.circuit.w[self.circuit.ramsey.offset]*1e6:6f} μs')
         qfi = quantum_fisher_information_mixed(self.circuit.circuit, self.B, self.circuit.w)
         print(f'QFI = {qfi}')
 
-        # data[1] = qfi
         print(f'\nDensity Matrix')
         print(self.circuit.circuit(self.B, self.circuit.w))
         print(f'\nParameters')
         self.circuit.view_param()
 
-        plot_density_matrix(self.circuit.circuit(self.B, self.circuit.w), self.circuit.w[self.circuit.ramsey.offset], f'{save_to}_max_dm')
+        # Save all results to structured directory
+        self._save_results(save_to, res, max_cfi, qfi, opt_log)
+
+    def _save_results(self, save_to, res, max_cfi, qfi, opt_log):
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        run_dir = f'results/{save_to}_seed{self.seed}_{timestamp}'
+        os.makedirs(run_dir, exist_ok=True)
+
+        t_s_optimal = float(self.circuit.w[self.circuit.ramsey.offset])
+
+        # 1. Save config
+        with open(f'{run_dir}/config.yaml', 'w') as f:
+            yaml.dump(self.raw_config, f, default_flow_style=False)
+
+        # 2. Save result summary
+        result_summary = {
+            'timestamp': timestamp,
+            'seed': self.seed,
+            'max_cfi': float(max_cfi),
+            'qfi': float(qfi),
+            'cfi_qfi_ratio': float(max_cfi / qfi) if qfi > 0 else None,
+            'optimal_sensing_time_s': t_s_optimal,
+            'optimal_sensing_time_us': t_s_optimal * 1e6,
+            'num_function_evals': int(res.nfev),
+            'num_iterations': self._iter_count,
+            'optimizer_message': str(res.message),
+            'optimizer_success': bool(res.success),
+        }
+        with open(f'{run_dir}/result.json', 'w') as f:
+            json.dump(result_summary, f, indent=2)
+
+        # 3. Save optimized parameters
+        np.save(f'{run_dir}/optimized_params.npy', self.circuit.w)
+
+        # 4. Save optimization log
+        if opt_log:
+            with open(f'{run_dir}/opt_log.csv', 'w', newline='') as f:
+                writer = csv.DictWriter(f, fieldnames=['iter', 'cfi', 't_s'])
+                writer.writeheader()
+                writer.writerows(opt_log)
+
+        # 5. Save density matrix
         dm = self.circuit.circuit(self.B, self.circuit.w)
-        np.save(f'./{save_to}_max_dm.npy', dm)
-        self.circuit.draw_circuit()
-        # np.save(f'./{save_to}_data.npy', data)
+        np.save(f'{run_dir}/max_dm.npy', dm)
+
+        print(f'\nResults saved to: {run_dir}/')
+
+        # 8. Append to README
+        self._append_readme(result_summary, run_dir)
+
+    def _append_readme(self, result, run_dir):
+        readme_path = 'README.md'
+
+        cfi_qfi = result['cfi_qfi_ratio']
+        cfi_qfi_str = f"{cfi_qfi:.4f}" if cfi_qfi is not None else "N/A"
+
+        row = (
+            f"| {result['timestamp']} "
+            f"| {result['seed']} "
+            f"| {self.cp.num_wires} "
+            f"| {self.cp.num_entangler} "
+            f"| {self.cp.t2*1e6:.1f} "
+            f"| {self.cp.p} "
+            f"| {self.cp.B} "
+            f"| {self.cp.ps} "
+            f"| {result['max_cfi']:.4f} "
+            f"| {result['qfi']:.4f} "
+            f"| {cfi_qfi_str} "
+            f"| {result['optimal_sensing_time_us']:.4f} "
+            f"| `{run_dir}` |\n"
+        )
+
+        with open(readme_path, 'a') as f:
+            f.write(row)

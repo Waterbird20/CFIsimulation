@@ -10,7 +10,7 @@ pi = np.pi
 # Quantum circuit class definition
 class Circuit:
 
-    def __init__(self, params: circuitarguments):
+    def __init__(self, params: circuitarguments, seed: int = 42):
         
         # Circuit configuration
         self.p = params
@@ -82,9 +82,8 @@ class Circuit:
         self.n_params = pivot
         bound_np = np.array(self.bound)
         
-        rng = np.random.default_rng(
-            # seed=42
-            )
+        self.seed = seed
+        rng = np.random.default_rng(seed=seed)
         self.w = rng.uniform(bound_np[:,0], bound_np[:,1])
         
         if self.ps:
@@ -116,15 +115,14 @@ class Circuit:
         self.w = np.fmod(self.w,2*pi)
 
     
-    def draw_circuit(self):
+    def draw_circuit(self, save_path='./circuit.png'):
 
         B_dummy = np.array(0.0)
         if self.ps:
             fig, ax = qml.draw_mpl(self.inner_circuit)(B_dummy, self.w)
-            fig.savefig('./circuit.png')
         else:
             fig, ax = qml.draw_mpl(self.circuit)(B_dummy, self.w)
-            fig.savefig('./circuit.png')
+        fig.savefig(save_path)
 
     
     def plot_params(self, data):
