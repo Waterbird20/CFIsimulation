@@ -72,7 +72,7 @@ class Circuit:
             return qml.density_matrix(wires=range(self.p.num_wires))
 
         if self.p.ps:
-            self.ps = PostSelection(self.p.num_wires, 'Post_Selection', pivot)
+            self.ps = PostSelection(self.p.num_wires, 'Post_Selection', pivot, fixed_ps_gamma=self.p.fixed_ps_gamma)
             pivot += self.ps.n_params
 
             b = self.ps.get_param_bound()

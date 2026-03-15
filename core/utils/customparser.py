@@ -20,7 +20,8 @@ class customparser:
                                 B               = self.arg['B'], \
                                 t               = self.arg['t_obs'], \
                                 ps              = self.arg['ps'], \
-                                fixed_ts        = self.arg.get('fixed_ts', None)), \
+                                fixed_ts        = self.arg.get('fixed_ts', None), \
+                                fixed_ps_gamma  = self.arg.get('fixed_ps_gamma', None)), \
                 optarguments(   opt                = self.arg['opt'], \
                                 maxiter            = self.arg.get('maxiter', 10000), \
                                 initial_temp       = self.arg.get('initial_temp', 5230.0), \

@@ -15,6 +15,7 @@ class circuitarguments:
     t:              float
     ps:             bool
     fixed_ts:       float = None
+    fixed_ps_gamma: float = None
 
 # Arguments for optimization
 @dataclass

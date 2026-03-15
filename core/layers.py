@@ -168,26 +168,43 @@ class RamseyZ(CircuitLayer):
 # Post selection layer
 class PostSelection(CircuitLayer):
 
-    def __init__(self, num_wires, layer_id, offset):
-        
+    def __init__(self, num_wires, layer_id, offset, fixed_ps_gamma=None):
+
         super().__init__(num_wires, layer_id)
-        self.n_params = 3*num_wires
-        # self.n_params = 2*num_wires + 1
         self.offset = offset
-        self.data_label = [rf'$\gamma_{{{i+1}}}$' for i in range(self.num_wires)]
-        for i in range(self.num_wires):
-            self.data_label.append(rf'$\theta_{{Z{i+1}}}$')
-            self.data_label.append(rf'$\theta_{{X{i+1}}}$')
-        self.bound = [(0,1-1e-3)]*self.num_wires + [(-2*pi, 2*pi)]*(2*self.num_wires)
+        self.fixed_ps_gamma = fixed_ps_gamma
+
+        if fixed_ps_gamma is not None:
+            self.n_params = 2 * num_wires
+            self.data_label = []
+            for i in range(self.num_wires):
+                self.data_label.append(rf'$\theta_{{Z{i+1}}}$')
+                self.data_label.append(rf'$\theta_{{X{i+1}}}$')
+            self.bound = [(-2*pi, 2*pi)] * (2 * self.num_wires)
+        else:
+            self.n_params = 3 * num_wires
+            self.data_label = [rf'$\gamma_{{{i+1}}}$' for i in range(self.num_wires)]
+            for i in range(self.num_wires):
+                self.data_label.append(rf'$\theta_{{Z{i+1}}}$')
+                self.data_label.append(rf'$\theta_{{X{i+1}}}$')
+            self.bound = [(0,1-1e-3)]*self.num_wires + [(-2*pi, 2*pi)]*(2*self.num_wires)
 
 
     def __call__(self, rho, w):
-        
+
         o = self.offset
         ps = []
-        
-        for i in range(self.num_wires):
-            ps.append(np.array([[np.sqrt(1-np.clip(w[o+i],0,0.999)),0.],[0,1]],dtype=np.complex128))
+
+        if self.fixed_ps_gamma is not None:
+            gamma = np.clip(self.fixed_ps_gamma, 0, 0.999)
+            for i in range(self.num_wires):
+                ps.append(np.array([[np.sqrt(1-gamma),0.],[0,1]],dtype=np.complex128))
+            rz_o = o
+        else:
+            for i in range(self.num_wires):
+                ps.append(np.array([[np.sqrt(1-np.clip(w[o+i],0,0.999)),0.],[0,1]],dtype=np.complex128))
+            rz_o = o + self.num_wires
+
         K = reduce(lambda x,y: np.kron(x,y), ps)
         numerator = K @ rho @ K.conj().T
         denominator = np.trace(numerator)
@@ -196,8 +213,8 @@ class PostSelection(CircuitLayer):
 
         qml.QubitDensityMatrix(rho_ps, wires=range(self.num_wires))
         for i in range(self.num_wires):
-            qml.RZ(w[o+i*2 + self.num_wires], wires=i)
-            qml.RX(w[o+i*2 + 1 + self.num_wires], wires=i)
+            qml.RZ(w[rz_o + i*2], wires=i)
+            qml.RX(w[rz_o + i*2 + 1], wires=i)
 
 # Deprecated
 class Rotate(CircuitLayer):
